@@ -1,0 +1,3 @@
+#applied job details
+<?php
+?>

@@ -1,0 +1,290 @@
+drop DATABASE if EXISTS setplacement;
+CREATE DATABASE setplacement;
+
+
+use setplacement;
+CREATE TABLE student(
+    rollNo int,
+    email varchar(50) not NULL,
+    gender char(1)not NULL,
+    mobileNo varchar(10) NOT NULL,
+    name varchar(25) NOT NULL,
+    programme varchar(50) NOT NULL,
+    cpi real NOT NULL,
+    depertment varchar(50) NOT NULL,
+    category varchar(15),
+    parmenentAdress varchar(500)NOT NULL,
+    ppo_details boolean not null,
+    ppo_ctc int ,
+    constraint student_pk primary key(rollNo)
+);
+
+create table cv(
+   cv_id int not null auto_increment,
+   rollNo int not null,
+   cv_no int ,
+   cv_data varchar(100),
+   constraint cv_table_pk primary key(cv_id),
+   constraint cv_table_fk foreign key (rollNo) references student(rollNo) on delete cascade on update cascade
+);
+
+create table company (
+  cmp_id int not null auto_increment,
+  cmp_name varchar(50) not null,
+  details varchar(1000),
+  contactNo bigint(10) not null,
+  email varchar(50) not null,
+  constraint company_pk primary key(cmp_id)
+);
+
+CREATE TABLE placement_rep(
+    pr_id int NOT NULL AUTO_INCREMENT,
+    name varchar(50),
+    depertment varchar(25),
+    email varchar(50),
+    mobileNo varchar(10),
+    constraint  placement_rep_fk PRIMARY KEY (pr_id)
+);
+CREATE TABLE recomendation(
+    rec_id int AUTO_INCREMENT,
+   cmp_id int NOT NULL,
+    recom_word varchar(25),
+    rec_key varchar(25),
+    CONSTRAINT recomendation_pk PRIMARY KEY (rec_id)
+);
+
+CREATE TABLE job(
+    job_id int NOT NULL AUTO_INCREMENT,
+    ctc int NOT NULL ,
+   vacency int not null,
+    lastDate Date NOT NULL,
+    joiningDate Date NOT NULL,
+    details varchar(500)NOT NULL,
+    rec_id int NOT NULL,
+    typeJob varchar(15) NOT NULL,
+    cpiCutOff real DEFAULT 0.0,
+    cmp_id INT NOT NULL,
+    adertiseDate date,
+    CONSTRAINT job_pk PRIMARY key (job_id),
+    CONSTRAINT job_fk_1 FOREIGN KEY (cmp_id) REFERENCES company(cmp_id) on DELETE CASCADE on UPDATE CASCADE
+);
+
+ CREATE TABLE slot(
+     slot_id int not NULL AUTO_INCREMENT,
+     slot_type varchar(50) not null,
+     slot_date Date NOT NULL,
+     slot_time time NOT NULL,
+     job_id INT NOT NULL,
+     CONSTRAINT slot_pk PRIMARY KEY (slot_id),
+     CONSTRAINT slot_fk_1 FOREIGN KEY (job_id) REFERENCES job(job_id) on DELETE CASCADE on UPDATE CASCADE 
+ );
+
+ CREATE TABLE apply(
+     rollNo int NOT NULL ,
+     job_id INT NOT NULL,
+     apply_time DATE,
+     cv_id INT,
+     CONSTRAINT apply_pk PRIMARY KEY(job_id,rollNo),
+     CONSTRAINT apply_fk_1 FOREIGN KEY (cv_id) REFERENCES cv(cv_id) on DELETE CASCADE on UPDATE CASCADE,
+     CONSTRAINT apply_fk_2 FOREIGN KEY (job_id) REFERENCES job(job_id) on DELETE CASCADE on UPDATE CASCADE,
+     CONSTRAINT apply_fk_3 FOREIGN KEY (rollNo) REFERENCES student(rollNo) on DELETE CASCADE on UPDATE CASCADE
+ );
+
+
+ CREATE TABLE offers(
+     rollNo int not null,
+     job_id  int not null,
+     offer_ctc int not null,
+     aecepted char(1) DEFAULT 'N',
+     offerlastdate date NOT NULL,
+     CONSTRAINT offer_pk PRIMARY KEY ( job_id, rollNo),
+     CONSTRAINT offer_fk_1 FOREIGN KEY (rollNo) REFERENCES student(rollNo) on DELETE CASCADE on UPDATE CASCADE,
+     CONSTRAINT offer_fk_2 FOREIGN KEY (job_id) REFERENCES job(job_id) on DELETE CASCADE on UPDATE CASCADE  
+ );
+
+ CREATE TABLE maintains_student (
+     comments varchar(100),
+     rollNo int NOT NULL,
+     pr_id int  not null,
+     approved char(1) DEFAULT 'N',
+     CONSTRAINT maintains_student_pk PRIMARY KEY (rollNO,pr_id),
+     CONSTRAINT maintains_student_fk_1 FOREIGN KEY (rollNo) REFERENCES student (rollNo) on DELETE CASCADE on UPDATE CASCADE,
+     CONSTRAINT maintains_student_fk_2 FOREIGN KEY (pr_id) REFERENCES placement_rep(pr_id) on DELETE CASCADE on UPDATE CASCADE
+ );
+
+ CREATE TABLE maintains_job (
+     comments varchar(100),
+     job_id int NOT NULL,
+     pr_id int  not null,
+     approved char(1) DEFAULT 'N',
+     CONSTRAINT maintains_job_pk PRIMARY KEY (job_id,pr_id),
+     CONSTRAINT maintains_job_fk_1 FOREIGN KEY (job_id) REFERENCES job (job_id) on DELETE CASCADE on UPDATE CASCADE,
+     CONSTRAINT maintains_job_fk_2 FOREIGN KEY (pr_id) REFERENCES placement_rep(pr_id) on DELETE CASCADE on UPDATE CASCADE
+ );
+ CREATE TABLE maintains_apply (
+     comments varchar(100),
+     job_id int NOT NULL,
+     pr_id int ,
+     rollNo int not NULL,	
+     approved char(1) DEFAULT 'N',
+     CONSTRAINT maintains_apply_pk PRIMARY KEY (job_id,pr_id,rollno),
+     CONSTRAINT maintains_apply_fk_1 FOREIGN KEY (job_id) REFERENCES job (job_id) on DELETE CASCADE on UPDATE CASCADE,
+     #CONSTRAINT maintains_apply_fk_2 FOREIGN KEY (pr_id) REFERENCES placement_rep(pr_id) on DELETE CASCADE on UPDATE CASCADE,
+     CONSTRAINT maintains_apply_fk_3 FOREIGN KEY (rollNo) REFERENCES student(rollNo) on DELETE CASCADE on UPDATE CASCADE
+ );
+
+ CREATE TABLE log_in(
+     email_id varchar(50) not null,
+     passwords varchar(200),
+     levels int DEFAULT 0,
+     CONSTRAINT log_in_pk PRIMARY KEY (email_id)
+ );
+
+CREATE TABLE branch_job(
+	id int NOT NULL AUTO_INCREMENT,
+	job_id int NOT NULL,
+	branch_name varchar(50)not NULL,
+	CONSTRAINT branch_job_pk PRIMARY KEY(id),
+	CONSTRAINT branch_job_fk FOREIGN KEY (job_id) REFERENCES job(job_id) on DELETE CASCADE on UPDATE CASCADE
+);
+CREATE TABLE programme_job(
+	id int NOT NULL AUTO_INCREMENT,
+	job_id int NOT NULL,
+	programme_name varchar(100)not NULL,
+	CONSTRAINT programme_job_pk PRIMARY KEY(id),
+	CONSTRAINT programme_job_fk FOREIGN KEY (job_id) REFERENCES job(job_id) on DELETE CASCADE on UPDATE CASCADE
+);
+ 
+INSERT INTO student(rollNO,email,gender,mobileNo,name,programme,cpi,depertment,category,parmenentAdress,ppo_details,ppo_ctc) 
+VALUES(212123023,'p.bhavya@iitg.ac.in','M','9599854196','Bhavya Pundhir','M.Sc',8.9,'math','OBC','Vill-subhasnagar,P.O- chapla,Pin-743349',0,0),
+(212123036,'nishchal.agarwal@iitg.ac.in','M','8178822345','Nishchal Agarwal','M.Sc',8.0,'math','OBC','Vill-Raipur,P.O- kalika,Pin-743389',1,1200000),
+(211123053,'shibasishshaw@iitg.ac.in','M','8617572885','Shibasish Shaw','M.Sc.',8.2,'EEE','gen','Vill-tajipur,P.O- Rakhi,Pin-843389',0,0);
+ 
+INSERT INTO student(rollNO,email,gender,mobileNo,name,programme,cpi,depertment,category,parmenentAdress,ppo_details,ppo_ctc) 
+VALUES(212123031,'mohitsharma@iitg.ac.in','M','8963838178','Mohit Sharma','m.sc',5.6,'mathematics','obc','vill-khani,p.o-khanpur,pin-45778',1,500000 ),
+(212123048,'spatel@iitg.ac.in','F','9793600450','Satyam Patel','M.sc',7.5,'Physics','sc','vill-subhashnagar, P.O - sennagar,pin-458793',0, 0);
+
+
+INSERT INTO cv(cv_id,rollNo,cv_data,cv_no)
+VALUES(1,212123023,NULL,1),(2,212123036,NULL,2),(3,212123053,NULL,1),(4,212123031,NULL,2),(5,211123048,null,1);
+
+
+
+
+INSERT INTO company(cmp_id,cmp_name,details,contactNo,email) 
+VALUES(1,'Mc Kinsey','Management Consulting Firm;founded in 1926; advices strategic management to corporations ', 9763197321, 'hr.mckinsey@gmail.com'),
+(2,'Adobe','American Software Company; specializes in digital solutions to optimize applications ', 70261656421, 'hr.adobe@gmail.com'),
+(3,'Microsoft','American Technology Company; specializes in computer software, electronics, PC etc.', 70261656421, 'hr.microsoft@gmail.com');
+
+INSERT INTO placement_rep (pr_id,name,depertment ,email,mobileNo) 
+VALUES(1,'Jack Jones','Computer Science', 'jj@iitg.ac.in', '9876543210' ),
+(2,'Bony M','Mathematics', 'bm@iitg.ac.in', '6879234501'),
+(3,'John Snow','EEE', 'js@iitg.ac.in', '9293819453' );
+
+INSERT INTO recomendation (rec_id,cmp_id ,recom_word,rec_key) 
+VALUES(1,1,'Data Scientist','Data Analytics'),
+(2,1,'Machine Learning Engineer','Data Analytics'),
+(3,2,'Data Analyst','Data Analytics'),
+(4,2,'Fullstack Developer','Software Development'),
+(5,2,'Frontend Developer','Software Development'),
+(6,1,'Backend Developer','Software Development'),
+(7,1,'UI/UX Designer','Software Design'),
+(8,1,'Product Designer','Software Design');
+
+ 
+INSERT INTO job (job_id, ctc, lastDate, joiningDate, details, rec_id, typeJob, cpiCutOff, cmp_id,adertiseDate) 
+VALUES(1,1400000, '2022-08-15','2022-08-19','RESPONSIBILITIES: Mine and analyze data from company database to optimize product development, develop custom models and algorithms to datasets, use predictive modelling to outgrow business. QUALIFICATIONS: B.Tech in CSE/Computing, M.Tech in Data Science, experience with Python, R,SQL, good knowledge of datastructures and algorithms.',1,'Full Time', 7, 2, '2022-05-15'),
+(2,750000, '2022-11-20','2022-01-09','RESPONSIBILITIES: Develop intuitive software that meets and exceeds company needs, update andmaintain code repositories addressing customer concersn, analyze and test programs before launch. QUALIFICATIONS: B.Tech/M.Tech in CSE, hands on experience developingand maintaining software applications, working knowledge of C, C++, Pythin is a must.',2,'Full Time', 7.5, 3, '2022-05-19'),
+(3,4500000, '2022-11-20','2022-01-09','RESPONSIBILITIES:Develop interactive graphical interfaces affecting different business requirements, create userflows, wireframes, prototypes and mockups. QUALIFICATIONS: Bachelors or Masters in Design, working knowledge of Figma, Canva and other tools.',3,'Full Time', 8.5, 2, '2022-10-18'),
+(4,2500000, '2022-11-20','2022-01-09','RESPONSIBILITIES:Develop interactive graphical interfaces affecting different business requirements, create userflows, wireframes, prototypes and mockups. QUALIFICATIONS: Bachelors or Masters in Design, working knowledge of Figma, Canva and other tools.',3,'Full Time', 7.5, 2, '2022-10-18'),
+(5,500000, '2022-11-20','2022-01-09','RESPONSIBILITIES:Develop interactive graphical interfaces affecting different business requirements, create userflows, wireframes, prototypes and mockups. QUALIFICATIONS: Bachelors or Masters in Design, working knowledge of Figma, Canva and other tools.',3,'Full Time', 6.5, 3, '2022-10-18');
+
+
+INSERT INTO slot (slot_id ,slot_no, slot_date, slot_time, job_id) 
+VALUES(1,1,'2022-10-30', '10:00:00',1) ,
+(2,2,'2022-11-05', '11:30:00',2),
+(3,3,'2022-11-06', '11:00:00',3);
+ 
+
+
+INSERT INTO apply (rollNo,job_id, apply_time, cv_id) 
+VALUES(201123004,2,'11:00:00',1),
+(212123002,2,'11:30:00',3),
+ (212123004,1,'12:00:00',4),
+(201123004,3,'12:00:00',2);
+
+
+
+INSERT INTO offers (rollNo,job_id, aecepted,offer_ctc,offerlastdate) 
+VALUES(201123004,3,'Y',12000000,'2021-12-10'), (202123002,2,'Y',1400000,'2021-12-11'),(202123004,1,'Y',150000,'2021-12-11');
+
+
+INSERT INTO maintains_student (comments, rollNo, pr_id,approved) 
+VALUES('All documents submitted.',201123004,2,'Y'),('data is not ok.',202123002,1,'W'),('All documents submitted.',202123004,3,'Y');
+
+
+
+INSERT INTO maintains_job  (comments, job_id, pr_id, approved) 
+VALUES('The company is legitimate and provided all necessary papers.',1,2,'Y'),
+('The company is legitimate and provided all necessary papers.',2,1,'Y'),
+('The company is legitimate and provided all necessary papers.',3,3,'Y');
+
+
+#all triggers for business logic
+
+# for cpi
+
+  DELIMITER //
+  CREATE TRIGGER apply_tr_1
+  BEFORE INSERT
+  ON maintains_apply
+  for EACH ROW
+  begin
+if (select s.cpi from student s where s.rollno= new.rollNo) < (SELECT j.cpiCutOff FROM job j WHERE j.job_id=new.job_id) then set new.approved='N' , new.comments='cpi is low';
+ELSE SET new.approved='P' ,new.comments='need to check';
+  end if; 
+  end //
+
+# for pop_ctc
+
+DELIMITER //
+  CREATE TRIGGER apply_tr_2
+  BEFORE INSERT
+  ON maintains_apply
+  for EACH ROW
+  begin
+if (select s.ppo_ctc from student  s where s.rollNo= new.rollNo) <=600000 AND (select j.ctc from job j where j.job_id=new.job_id)>600000 AND new.approved='P' then set new.approved='Y' , new.comments='You able to apply for Dream Job and super dream job';
+elseif (select s.ppo_ctc from student  s where s.rollNo= new.rollNo) <=1600000 AND (select j.ctc from job j where j.job_id=new.job_id)>1600000 AND new.approved='P' then set new.approved='Y' , new.comments='You able to apply for Dream  super dream job';
+ELSEIF (new.approved='P' or new.approved = 'Y') THEN set new.approved='N', new.comments='you got good ppo';
+  end if; 
+  end //
+  
+  
+ # for offer details
+ 
+ 
+DELIMITER //
+  CREATE TRIGGER apply_tr_3
+  BEFORE INSERT
+  ON maintains_apply
+  for EACH ROW
+  begin
+if (select s.ppo_ctc from student  s where s.rollNo= new.rollNo) <=600000 AND (select j.ctc from job j where j.job_id=new.job_id)>600000 AND ( new.approved='P' OR new.approved='Y') then set new.approved='Y' , new.comments='You able to apply for Dream Job and super dream job';
+elseif (select o.offer_ctc from offers o where o.rollNo= new.rollNo) <=1600000 AND (select j.ctc from job j where j.job_id=new.job_id)>1600000 AND ( new.approved='P' OR new.approved='Y') then set new.approved='Y' , new.comments='You able to apply for Dream  super dream job';
+ELSEIF (new.approved='P' or new.approved = 'Y') THEN set new.approved='N', new.comments='you got good offers from company';
+  end if; 
+  end //
+  
+ 
+
+INSERT INTO maintains_apply  (rollNo, job_id, pr_id, comments, approved) 
+VALUES(201123004,1,3,'you are able to apply', 'Y'),
+(211123004,2,3,'you are able to apply', 'Y'),
+(211123004,3,3,'you are able to apply', 'Y'),
+(212123002,2,1,'you are able to apply', 'Y'),  
+(212123004,1,2,'you are able to apply', 'Y'),
+(212123006,1,1,'you are able to apply','Y'),
+(212123005,2,3,'you are able to apply', 'Y'),
+(212123005,3,3,'you are able to apply', 'Y'),
+(212123004,2,3,'you are able to apply','Y');
+  
